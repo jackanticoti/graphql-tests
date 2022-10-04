@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import internal from 'stream';
 
 type Choice = {
   text: string;
@@ -9,13 +8,12 @@ type Choice = {
 
 type Question = {
   text: string;
-  choices: [string];
+  choices: Choice[];
 }
 
 function Page() {
 
-    const [questions, setQuestions] = useState([]);
-    const [questionOne, setQuestionOne] = useState("");
+    const [questions, setQuestions] = useState<Question[]>([]);
 
     const query = gql`
     query {
@@ -31,42 +29,45 @@ function Page() {
           }
         }
       }`;
-
-    const { data } = useQuery(query);
-
-    if (data) {
+  
+      const { data } = useQuery(query);
+      if (data) {
         const response = data.LoadSuperQuizInfo.questions
-        console.log(data.LoadSuperQuizInfo.questions)
-        let questionsText: string[] = []
-        for (var i = 0; i < response.length; i++) { 
-            questionsText.push(response[i].body)
+        let questionsData: Question[] = []
+        let newQuestion: Question;
+        for (let i = 0; i < response.length; i++) {
+          let choicesData: Choice[] = []
+          let newChoice: Choice;
+          for (let i2 = 0; i2 < response[i].choices.length; i2++) {
+            newChoice = {
+              text: response[i].choices[i2].value,
+              correct: response[i].choices[i2].correct
+            }
+            choicesData.push(newChoice)
+          }
+          newQuestion = {
+            text: response[i].body,
+            choices: choicesData
+          }
+          questionsData.push(newQuestion)
         }
         useEffect(() => {
-            setQuestions(data.LoadSuperQuizInfo.questions)
-            setQuestionOne(data.LoadSuperQuizInfo.questions[0].body)
+          setQuestions(questionsData)
+        }, [])
+      } 
 
-        })
-    }
+    let answerItems;
 
-    let quiz;
-    for (var i = 0; i < questions.length; i++) { 
-        console.log(questions[i].body)
-        console.log(questions[i].choices)
-    }
-
-    let questionsFake = ["What's your favorite color?", "Was 1999 a leap year?", 
-    "What is the capital of CT?"]
-    let answerItems
-
-    let answers = [["Red", "Green", "Blue"], ["Yes", "No"], ["Hartford", "NYC", "Boston"]]
-    const questionItems = questionsFake.map((question, index) => {
-      answerItems = answers[index].map((answer) => {
+    const questionItems = questions.map((question, index) => {
+      answerItems = question.choices.map((answer, index_2) => {
         return <h2
+          key={`key-${index_2}`}
           className='hover:bg-slate-100 rounded-lg bg-slate-200 m-2 px-3'
-          >{answer}</h2>
+          >{answer.text}</h2>
       })
-      return <div className='p-4'>
-        <h1>{question}</h1>
+      return <div className='p-4' key={`key-${index}`}>
+        <h1
+          className=''>{question.text}</h1>
         {answerItems}
       </div>
     })
