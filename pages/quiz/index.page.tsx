@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { GlobalTypes,  } from '@thoughtindustries/content'
 
 type Choice = {
   text: string;
@@ -28,9 +29,66 @@ function Page() {
             }
           }
         }
+
+        LoadAssesmentAttemptWithQuestions(
+          courseId
+        ) {
+
+        }
+
       }`;
+
+      // This is "This is a sample quiz" of Course 1
+      // What is your favorite color
+      // Blue Red Green
+      // What is the capital of Connecticut
+      // Hartford, New Haven, NYC
+      // Was 1999 a leap year
+      // True, False
+
+      // I want to make a mutation that represents the following quiz attempt
+      // Red, Incorrect
+      // Hartford, Correct
+      // False, Correct
+
+      const questionInputOne = {
+        body: "What is your favorite color?",
+        choices: [
+          {value: "Red", correct: false},
+          {value: "Red", correct: false},
+          {value: "Red", correct: false},
+        ]
+      }
+
+      const questionInputTwo = {
+        body: "What is the capital of connecticut?",
+        choices: [
+          {value: "Hartford", correct: false},
+          {value: "New Haven", correct: false},
+          {value: "NYC", correct: false},
+        ]
+      }
+
+      const questionInputThree = {
+        body: "Was 1999 a leap year?",
+        choices: [
+          {value: "Red", correct: false
+        }]
+      }
+
+      const questionInputs = [questionInputOne, questionInputTwo, questionInputThree]
+      
+      const mutation = gql`
+      mutation {
+          CreateAssessmentAttempt(
+            courseId: "b6c00977-99b4-4663-9d0e-7c39385cfc49"
+            topicId: "872bfd0a-aeec-4b97-b7f1-24878f55323f", 
+            questions: [${questionInputOne}]
+          }
+      }`
   
       const { data } = useQuery(query);
+
       if (data) {
         const response = data.LoadSuperQuizInfo.questions
         let questionsData: Question[] = []
