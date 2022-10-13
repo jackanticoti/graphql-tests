@@ -22,16 +22,31 @@ function Page() {
             }
         }
     }`;
-      
-    const { data } = useQuery(query);
 
-    if (data) {
-        const response = data.UserBookmarks
+    const destroy_mutation = gql`
+    mutation DestroyBookmarkFolder($id: ID!) {
+        DestroyBookmarkFolder(id: $id)
+    }`
+
+    const update_mutation = gql`
+    mutation UpdateBookmarkFolder($id: ID!, $name: String!) {
+        UpdateBookmarkFolder(
+          id: $id,
+          name: $name
+        ) {
+          name
+        }
+      }`
+      
+    const { data: queryData } = useQuery(query);
+
+    if (queryData) {
+        const response = queryData.UserBookmarks
         const bookmarksData: Bookmark[] = []
-        let newBookmark: Bookmark = {id: "", name: ""};
         for (let i = 0; i < response.length; i++) {
-            newBookmark.id = data.UserBookmarks[i].id
-            newBookmark.name = data.UserBookmarks[i].name
+            const newBookmark: Bookmark = {name: "", id: ""};
+            newBookmark.id = queryData.UserBookmarks[i].id
+            newBookmark.name = queryData.UserBookmarks[i].name
             bookmarksData.push(newBookmark)
         }
         useEffect(() => {
@@ -39,17 +54,9 @@ function Page() {
         }, [])
     }
 
-    function deleteMe(index: number) {
-        const mutation = gql`
-        mutation {
-            DestroyBookmark(
-            id: "${bookmarks[index].id}"
-            )
-        }`
-        useEffect(() => {
-            useMutation(mutation)
-        }, [])
-    }
+    const [destroyBookmarkFolder, { data: destroyData, loading: destroyLoading, error: errorLoading }] = useMutation(destroy_mutation);
+
+    const [updateBookmarkFolder, { data: updateData, loading: updateLoading, error: updateError }] = useMutation(update_mutation);
 
     const bookmarkItems = bookmarks.map((bookmark, index) => {
         return <div
@@ -60,16 +67,17 @@ function Page() {
                 >{bookmark.name}</h1>
             <h1
                 className='hover:cursor-pointer hover:bg-slate-100 bg-slate-400 mt-2 ml-6 w-40 text-center rounded-md'
-                onClick={() => {
-                    const mutation = gql`
-                    mutation {
-                        DestroyBookmark(
-                        id: "${bookmarks[index].id}"
-                        )
-                    }`
-                    useMutation(mutation)
-                }}
+                onClick={() => destroyBookmarkFolder({ variables: { id: bookmark.id } })}
                 >Delete me</h1>
+            <h1
+                className='hover:cursor-pointer hover:bg-slate-100 bg-slate-400 mt-2 ml-6 w-40 text-center rounded-md'
+                onClick={() => {
+                    updateBookmarkFolder({ variables: { 
+                        id: bookmark.id,
+                        name: "Some bookmark name"
+                    } })
+                }}
+                >Change name of folder</h1>
         </div>
     })
 

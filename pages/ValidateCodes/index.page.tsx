@@ -5,22 +5,15 @@ function Page() {
 
     const mutation = gql`
     mutation {
-        DestroyBookmark(
-            id: ""
+        DestroyBookmarkFolder(
+            id: "6331a88b-a0ac-4d7a-9127-7fdd4330b403"
         )
     }`
-    
-    useEffect(() => {
-        useMutation(mutation)
-    }, [])
-
 
     return (
         <div>
             <h1>Sample mutations</h1>
-            <h1>Mutate one</h1>
-            <h1>Mutate two</h1>
-            <h1>Mutate three</h1>
+            
         </div>
     );
 }
