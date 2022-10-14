@@ -4,7 +4,7 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 type Bookmark = {
     name: string;
     id: string;
-  }
+}
 
 function Page() {
 
@@ -41,6 +41,7 @@ function Page() {
     const { data: queryData } = useQuery(query);
 
     if (queryData) {
+        console.log(queryData)
         const response = queryData.UserBookmarks
         const bookmarksData: Bookmark[] = []
         for (let i = 0; i < response.length; i++) {
