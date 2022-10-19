@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 type TextProps = {
     title: string;
-    body: boolean;
+    body: string;
 }
 
 function Text(props: TextProps) {

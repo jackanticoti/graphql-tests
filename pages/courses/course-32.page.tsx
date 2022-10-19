@@ -29,6 +29,7 @@ function Page() {
     
     const [sections, setSections] = useState<Section[]>([]);
     const [selectedPage, setSelectedPage] = useState("b564574c-947c-492c-9823-e94447c35c0b")
+    const [firstName, setFirstName] = useState("");
 
     const query = gql`
     query CourseById($id: ID!) {
@@ -52,6 +53,24 @@ function Page() {
             setSections(data.CourseById.sections)
         }, [])
     }
+
+    const user_query = gql`
+    query CurrentUser {
+        CurrentUser {
+            id
+            firstName
+        }
+    }`
+
+    const { data: user_data } = useQuery(user_query);
+
+    if (data) {
+        useEffect(() => {
+            setFirstName(user_data.CurrentUser.firstName)
+        }, [])
+    }
+
+    
 
     // Sections
     const sectionItems = sections.map((section, index) => {
@@ -89,7 +108,7 @@ function Page() {
                 className='p-5 w-96'>
                 <h1
                     className='text-2xl text-center'>
-                        Section: {section.title}
+                         Welcome to {section.title}, {firstName}
                 </h1>
                 {lessonItems}
             </div>

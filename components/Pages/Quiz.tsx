@@ -101,6 +101,8 @@ function Quiz(props: QuizProps) {
       </div>
     })
 
+    let questionInputs: [];
+
     const mutation = gql`
       mutation {
           CreateAssessmentAttempt(
@@ -109,6 +111,8 @@ function Quiz(props: QuizProps) {
             questions: []
           )
       }`
+
+
 
     return (
         <div>
