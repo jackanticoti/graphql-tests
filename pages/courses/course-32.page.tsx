@@ -52,23 +52,25 @@ function Page() {
         useEffect(() => {
             setSections(data.CourseById.sections)
         }, [])
+    } else if (error) {
+        console.log("There was an error calling CourseByID")
     }
 
-    const user_query = gql`
-    query CurrentUser {
-        CurrentUser {
-            id
-            firstName
-        }
-    }`
+    // const user_query = gql`
+    // query CurrentUser {
+    //     CurrentUser {
+    //         id
+    //         firstName
+    //     }
+    // }`
 
-    const { data: user_data } = useQuery(user_query);
+    // const { data: user_data } = useQuery(user_query);
 
-    if (data) {
-        useEffect(() => {
-            setFirstName(user_data.CurrentUser.firstName)
-        }, [])
-    }
+    // if (data) {
+    //     useEffect(() => {
+    //         setFirstName(user_data.CurrentUser.firstName)
+    //     }, [])
+    // }
 
     
 
@@ -108,7 +110,7 @@ function Page() {
                 className='p-5 w-96'>
                 <h1
                     className='text-2xl text-center'>
-                         Welcome to {section.title}, {firstName}
+                         Welcome to {section.title}
                 </h1>
                 {lessonItems}
             </div>
@@ -139,24 +141,9 @@ function Page() {
         }
     }`
 
-    const scorm_query = gql`
-    query RusticiLaunchScorm($id: ID!){
-        RusticiLaunchScorm(
-          id: $id, 
-          isPreview: false,
-          type: course
-        ) {
-          url
-        }
-    }`
-
     const { data: page_data, error: page_error } = useQuery(page_query, {
         variables: { identifiers: [selectedPage] }
     });
-
-    // const { data: scorm_data, error: scorm_error } = useQuery(scorm_query, {
-    //     variables: { id: selectedPage }
-    // });
 
     let pageItems;
 
@@ -176,6 +163,10 @@ function Page() {
                     id={page_data.Pages[0].id}/>
         }
         
+    } else if (page_error) {
+        console.log("There was an error calling Pages")
+        console.log(`selected page is: ${selectedPage}`)
+        console.log(page_error)
     }
 
     let page = <div 

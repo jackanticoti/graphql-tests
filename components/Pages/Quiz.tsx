@@ -15,14 +15,22 @@ type Question = {
   choices: Choice[];
 }
 
+// type QuestionInput = {
+//   body: string,
+//   mustSelectAllCorrectChoices: boolean,
+//   choices: [
+
+//   ]
+// }
+
 function Quiz(props: QuizProps) {
 
     const [title, setTitle] = useState("")
     const [questions, setQuestions] = useState<Question[]>([]);
 
-    const [answers, setAnswers] = useState<Number[]>([]);
+    const [answers, setAnswers] = useState<number[]>([]);
 
-    const query = gql`
+    const get_quiz_query = gql`
     query {
         Pages(identifiers: ["${props.id}"]) {
             __typename
@@ -40,13 +48,13 @@ function Quiz(props: QuizProps) {
       }
     `
 
-    const { data } = useQuery(query, {
+    const { data: quiz_data } = useQuery(get_quiz_query, {
         variables: { identifiers: props.id }
     });
 
-    if (data) {
+    if (quiz_data) {
         
-        const response = data.Pages[0].questions
+        const response = quiz_data.Pages[0].questions
         let questionsData: Question[] = []
         let newQuestion: Question;
         for (let i = 0; i < response.length; i++) {
@@ -67,10 +75,10 @@ function Quiz(props: QuizProps) {
         }
         
         useEffect(() => {
-            setTitle(data.Pages[0].title)
+            setTitle(quiz_data.Pages[0].title)
             setQuestions(questionsData)
-            let answersData: Number[] = []
-            for (let i = 0; i < data.Pages[0].questions.length; i++) {
+            let answersData: number[] = []
+            for (let i = 0; i < quiz_data.Pages[0].questions.length; i++) {
               answersData.push(-1)
             }
             setAnswers(answersData)
@@ -87,7 +95,6 @@ function Quiz(props: QuizProps) {
           className={`hover:bg-slate-100 rounded-lg m-2 px-3 hover:cursor-pointer
           ${ answers[index] === index_2 ? 'bg-green-200' : 'bg-slate-200'}`}
           onClick={() => {
-            console.log("yo yo yo")
             let oldAnswers = answers
             oldAnswers[index] = index_2
             setAnswers([...oldAnswers])
@@ -101,18 +108,43 @@ function Quiz(props: QuizProps) {
       </div>
     })
 
-    let questionInputs: [];
+    let questionInputs = [];
+    //console.log(questions)
+    if (questions.length != 0 && answers.length != 0) {
+      for (let i = 0; i < questions.length; i++) {
 
-    const mutation = gql`
-      mutation {
-          CreateAssessmentAttempt(
-            courseId: "b6c00977-99b4-4663-9d0e-7c39385cfc49"
-            topicId: "872bfd0a-aeec-4b97-b7f1-24878f55323f", 
-            questions: []
-          )
-      }`
+        let choices
+        if (answers[i] == -1) {
+          choices = [{
+            valueArray: [questions[i].choices[0].text],
+            correct: questions[i].choices[0].correct
+          }]
+        } else {
+          choices = [{
+            valueArray: [questions[i].choices[answers[i]].text],
+            correct: questions[i].choices[answers[i]].correct
+          }]
+        }
 
+        let questionInput = {
+          body: questions[i].text,
+          mustSelectAllCorrectChoices: true,
+          choices: choices
+        }
+        questionInputs.push(questionInput)
+      }
+    }
 
+    const submit_quiz_mutation = gql`
+    mutation {
+        CreateAssessmentAttempt(
+          courseId: "b6c00977-99b4-4663-9d0e-7c39385cfc49"
+          topicId: "872bfd0a-aeec-4b97-b7f1-24878f55323f", 
+          questions: []
+        )
+    }`
+
+    const [submitQuiz, { data: submitData }] = useMutation(submit_quiz_mutation);
 
     return (
         <div>
@@ -125,6 +157,8 @@ function Quiz(props: QuizProps) {
                 className='hover:bg-slate-100 bg-slate-400 rounded-lg 
                 m-2 px-3 hover:cursor-pointer w-72 text-xl text-center'
                 onClick={() => {
+                  // console.log(questionInputs)
+                  // submitQuiz({ variables: { id: props.id } })
                   let newAnswers = []
                   for (let i = 0; i < answers.length; i++) {
                     newAnswers.push(-1)

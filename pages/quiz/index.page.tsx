@@ -5,27 +5,33 @@ function Page() {
 
   let questionInputOne = {
     body: "<p>What state is Boston in?</p>",
+    mustSelectAllCorrectChoices: true,
     choices: [
       {
-        valueArray: ["MA"]
+        valueArray: ["MA"],
+        correct: true
       }
     ]
   }
 
   let questionInputTwo = {
     body: "<p>What sports team plays in Boston?</p>",
+    mustSelectAllCorrectChoices: true,
     choices: [
       {
-        valueArray: ["Patriots"]
+        valueArray: ["Patriots"],
+        correct: true
       }
     ]
   }
 
   let questionInputThree = {
     body: "<p>Is Harvard in Boston?</p>",
+    mustSelectAllCorrectChoices: true,
     choices: [
       {
-        valueArray: ["Yes"]
+        valueArray: ["Yes"],
+        correct: true
       }
     ]
   }

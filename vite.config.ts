@@ -13,4 +13,5 @@ export default defineConfig(async () => {
   tiConfig.plugins.push(mdx.default(mdxOptions));
 
   return tiConfig;
+  
 });
